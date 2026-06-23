@@ -1,0 +1,32 @@
+# ---------------------------------------------------------------------------
+# 5 Min ORB — what stays OUT of the repo and why
+# ---------------------------------------------------------------------------
+
+# Python bytecode cache
+__pycache__/
+*.pyc
+
+# Raw per-contract tick exports (~150 MB+, redundant).
+# These are the SOURCE that build_continuous.py stitches into
+# Python/MNQ_full_1min.csv — which IS committed. You do not need the raw
+# files to reproduce anything; they live in the user's local folder only.
+Historical Data/
+
+# Superseded / dead-end minute data (large, not needed to reproduce the champion)
+#   MES_1min.csv  -> MES proved to have NO time-stable edge (documented). 31 MB.
+#   MNQ_1min.csv  -> old 2-year file, superseded by MNQ_full_1min.csv. 16 MB.
+Python/MES_1min.csv
+Python/MNQ_1min.csv
+
+# Synthetic smoke-test data (regenerate with make_sample_data.py)
+Python/sample_MNQ_1min.csv
+
+# Per-run byproducts — regenerable, just clutter. The RESULT GRIDS
+# (*_fullgrid.csv, *_robust.csv, *_opt_grid.csv) ARE committed.
+Python/*_trades.csv
+Python/*_equity.png
+Python/*_heatmap.png
+
+# NOTE: Python/MNQ_full_1min.csv (57 MB, the master stitched dataset) IS
+# committed on purpose — it is the single artifact a fresh session needs to
+# re-run every backtest. It is under GitHub's 100 MB hard limit.
