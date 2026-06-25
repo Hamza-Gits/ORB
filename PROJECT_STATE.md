@@ -7,7 +7,7 @@
 > [`RESULTS.md`](RESULTS.md) (every number + scaling math), [`SCRIPTS.md`](SCRIPTS.md)
 > (what each Python tool does), [`docs/KIT_GUIDE.md`](docs/KIT_GUIDE.md) (setup).
 >
-> Last updated: 2026-06-23.
+> Last updated: 2026-06-25.
 
 ---
 
@@ -206,6 +206,52 @@ width filter), **not a logic difference**.
 
 ---
 
+## 5b. The NT free-feed backtest trap — root-caused (2026-06-25)
+
+> **Do not judge the strategy by a NinjaTrader Strategy Analyzer run on the free
+> feed.** It will look catastrophic and the strategy is NOT the problem.
+
+The user ran the champion in the NT Strategy Analyzer on **MNQ SEP26**, Jan 1 –
+Jun 23 2026, and got **−$2,712 / 10% win / 60 trades** — even after correctly
+setting the DST-aware timezone. Python on the *identical window* makes
+**+$1,193 / 24 trades / 41.7%**. Fully diagnosed (scripts:
+`Python/_nt_deepdive_run3.py`, `Python/_nt_orderlevels.py`; raw NT exports in
+`Back Test Results/3/`):
+
+- **Timezone was NOT the driver.** Switching from a fixed UTC offset to the
+  DST-aware **"(UTC-05:00) Eastern Time (US & Canada)"** zone barely moved the
+  result (−$2,747 → −$2,712). That near-zero change *proves* timezone is now
+  correct and was never the main issue. (Use the DST-aware named zone, not a
+  fixed UTC-4/UTC-5 offset — a fixed offset can't span the Mar 8 DST switch.)
+- **Root cause = contract month.** MNQ **SEP26 was the thin 1–2-quarter-out
+  BACK month** for essentially the whole window (JUN26 was front until it expired
+  2026-06-19; SEP26 only became the liquid front month ~2026-06-11). A thinly
+  traded contract prints few ticks in 09:30–09:45, so the opening range is
+  **compressed to ~⅓ its true width** (NT mean OR width **33 pts** vs Python
+  **88 pts**, 0.37×), while the daily ATR is barely affected (NT 436 vs Py 471,
+  0.93×).
+- **Mechanism of the loss.** Stop = opposite OR extreme, so NT's stops sit only
+  ~33 pts away → hair-trigger → **88% stop-out (53/60)** vs Python's 54% (13/24).
+  The compressed box also breaks more easily, so NT enters on **60 days vs
+  Python's 24** — and the **45 days NT trades that Python's filters reject lose
+  −$2,450, ≈90% of the total loss.**
+- **Why it's reassuring.** This is an artifact of running a *now-front* contract
+  *backwards* through its illiquid life — not a strategy flaw. The daily-bar math
+  (ATR/ADX) still matches Python to within 7%; only the intraday OR/stop geometry
+  breaks. **Forward sim from late-Jun 2026 onward uses SEP26 as the liquid front
+  month → true ~88-pt ORs → behaves like Python.** (Roll to DEC26 ~2026-09-10.)
+
+**Takeaways for a fresh session:**
+1. **Python (clean continuous `MNQ_full_1min.csv`) is the source of truth for
+   history.** Never trust an NT Strategy Analyzer backtest on a back-month / thin
+   free-feed contract.
+2. For a clean *historical* NT check, import `MNQ_full_1min.csv` into NT
+   (Tools → Historical Data) and backtest against that — same bars as Python.
+3. The NT Strategy Analyzer's job is **not** historical validation (Python did
+   that). Its job is the **forward test** on the live front month (Section 8).
+
+---
+
 ## 6. Why we stopped tuning (the OOS discipline)
 
 The user (rightly) kept asking "can we test more variables?" We did — **with
@@ -255,12 +301,26 @@ comes from forward-testing, not more tuning.
 
 In priority order:
 
-1. **Forward-test (the gate before any money).** Set NinjaTrader to Eastern
-   time, load the champion strategy on a 1-min MNQ chart on the **Sim101**
-   account (or run Market Replay on recent unseen data), and let it trade live
-   sessions for several weeks. Compare live fills/win-rate/DD to the backtest.
-   *This is the single most important remaining task.* A forward-test runbook
-   was offered but not yet written — write it when resuming.
+1. **Forward-test (the gate before any money).** *This is the single most
+   important remaining task.* Runbook:
+   - NinjaTrader timezone = **"(UTC-05:00) Eastern Time (US & Canada)"** (the
+     DST-aware named zone, not a fixed offset — see Section 5b).
+   - Open a **1-min chart of the front month** (MNQ SEP26 as of now), **Days to
+     load ≈ 40+** so the ATR/ADX warmup (~29 daily bars) is satisfied on startup.
+   - Apply **FiveMinuteORB** (or add via Control Center → Strategies tab),
+     **Account = Sim101**, **Calculate = On bar close**, **Enabled = true**. It
+     then trades every session automatically — measures the OR, places orders,
+     flattens 15:55 — no manual clicks. Flat overnight, so nothing to babysit.
+   - **Keep it running unattended:** NT must stay open + connected and the PC
+     awake (disable Windows sleep), OR run NT on a **VPS** for true 24/7.
+   - Let it run several weeks; compare live fills / win-rate / DD to the backtest.
+   - **Delayed-data verdict (free feed = 10-min delay):** the delay is a *uniform
+     clock-shift*; bars carry real timestamps/prices and Sim101 fills against the
+     same delayed stream, so **the sim P&L faithfully measures the edge — delayed
+     data is FINE for forward-testing.** It is NOT acceptable for *live money*
+     (orders would be placed ~10 min after the OR closes, missing the fast
+     breakouts that carry the edge) — but the actual prop **eval account runs on
+     the firm's real-time data**, so that concern is moot when it matters.
 2. **Confirm the FLEX trailing-DD lock rule** with the firm (Section 2). It
    changes sizing safety.
 3. **Pass a 25K eval**, take the first payout, then execute the 50K compounding
@@ -309,6 +369,8 @@ ORB/
 ├─ README.md                 <- short overview + pointers
 ├─ docs/
 │  └─ KIT_GUIDE.md           <- original setup guide (NinjaTrader + Python install)
+├─ Back Test Results/        <- raw NinjaTrader Strategy Analyzer exports (evidence)
+│  └─ 3/                      <- the Jan–Jun 2026 SEP26 run analyzed in Section 5b
 ├─ NinjaTrader/
 │  └─ FiveMinuteORB.cs        <- NT8 strategy, defaults = champion, parity-verified
 └─ Python/
@@ -318,6 +380,9 @@ ORB/
    ├─ orb_montecarlo.py       <- block-bootstrap prop-survival simulator
    ├─ orb_explore_oos.py      <- OOS exploration round 1
    ├─ orb_explore2_oos.py     <- OOS exploration round 2 (re-entry, day-of-week)
+   ├─ _nt_compare_2026.py     <- reproduce champion on the exact NT window (Section 5b)
+   ├─ _nt_deepdive_run3.py    <- day-by-day Python-vs-NT trade reconciliation
+   ├─ _nt_orderlevels.py      <- extract NT order geometry; proves OR-width compression
    ├─ _fullstats.py / _monthly.py / _yearly.py  <- stat helpers
    ├─ MNQ_full_1min.csv       <- master dataset 2019–2026 (committed, 57 MB)
    ├─ mnq7_all_fullgrid.csv   <- all 4,860 combos, full-period results

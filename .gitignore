@@ -26,6 +26,8 @@ Python/sample_MNQ_1min.csv
 Python/*_trades.csv
 Python/*_equity.png
 Python/*_heatmap.png
+# tiny strategy-debug dump (OR markers), not a result
+Python/orb_out.txt
 
 # NOTE: Python/MNQ_full_1min.csv (57 MB, the master stitched dataset) IS
 # committed on purpose — it is the single artifact a fresh session needs to
