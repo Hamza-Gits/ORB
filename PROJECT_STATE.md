@@ -3,11 +3,13 @@
 > **Read this first.** This is the single source of truth for the 5-minute ORB
 > project. If you are a fresh session (human or AI) picking this up cold, read
 > this file top to bottom and you will know exactly where things stand and what
-> to do next. Companion docs: [`CHAMPION.md`](CHAMPION.md) (exact winning config),
+> to do next. Companion docs: [`CONTEXT.md`](CONTEXT.md) (**live continuity file —
+> read this too; captures the latest session's state against context-window
+> compaction**), [`CHAMPION.md`](CHAMPION.md) (exact winning config),
 > [`RESULTS.md`](RESULTS.md) (every number + scaling math), [`SCRIPTS.md`](SCRIPTS.md)
 > (what each Python tool does), [`docs/KIT_GUIDE.md`](docs/KIT_GUIDE.md) (setup).
 >
-> Last updated: 2026-06-25.
+> Last updated: 2026-07-01.
 
 ---
 
@@ -362,7 +364,11 @@ not more tuning.
 
 ```
 ORB/
+├─ CONTEXT.md                <- live continuity file (latest session state; read first)
 ├─ PROJECT_STATE.md          <- you are here (master handoff)
+├─ Manual Tester/
+│  ├─ ORB_Manual_Tester.html <- browser calculator (width-based; logs trades + running stats)
+│  └─ orb_answer_key.csv     <- all 862 champion trades + running P&L (spot-check reference)
 ├─ CHAMPION.md               <- exact winning config, Python + NinjaScript
 ├─ RESULTS.md                <- all stats, yearly/monthly, Monte Carlo, scaling math
 ├─ SCRIPTS.md                <- what each Python tool does

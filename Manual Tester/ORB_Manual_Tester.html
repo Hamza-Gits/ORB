@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5-Min ORB — Manual Forward Tester (MNQ)</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c2230; --line:#2b3240;
+    --txt:#e6edf3; --dim:#8b949e; --grn:#2ea043; --grn2:#3fb950;
+    --red:#f85149; --amber:#d29922; --blue:#388bfd; --chip:#21262d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+       font-family:"Segoe UI",system-ui,Arial,sans-serif;font-size:15px;line-height:1.45}
+  .wrap{max-width:1080px;margin:0 auto;padding:22px 18px 60px}
+  h1{font-size:22px;margin:0 0 2px}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:18px}
+  .cfg{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+       padding:10px 14px;font-size:12.5px;color:var(--dim);margin-bottom:18px}
+  .cfg b{color:var(--txt)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin:0 0 14px}
+  label{display:block;font-size:12.5px;color:var(--dim);margin:0 0 4px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  input,select{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+        border-radius:8px;padding:9px 10px;font-size:15px;font-variant-numeric:tabular-nums}
+  input:focus,select:focus{outline:none;border-color:var(--blue)}
+  .verdict{border-radius:12px;padding:16px 18px;margin-top:4px;border:1px solid var(--line);
+           background:var(--panel2)}
+  .vhead{font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px}
+  .vreason{color:var(--dim);font-size:13px;margin-top:6px}
+  .gates{margin-top:14px;display:flex;flex-direction:column;gap:7px}
+  .gate{display:flex;align-items:center;gap:9px;font-size:13.5px}
+  .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  .ok{background:var(--grn2)} .bad{background:var(--red)} .na{background:#3d4450}
+  .levels{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;display:none}
+  .lvl{display:flex;justify-content:space-between;padding:5px 0;font-size:14.5px}
+  .lvl span:first-child{color:var(--dim)}
+  .lvl b{font-variant-numeric:tabular-nums}
+  .pos{color:var(--grn2)} .neg{color:var(--red)}
+  .btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:10px 16px;
+       font-size:14px;font-weight:600;cursor:pointer;width:100%;margin-top:4px}
+  .btn:hover{filter:brightness(1.1)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .out-opts{display:flex;gap:8px;margin-bottom:12px}
+  .out-opts button{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+        border-radius:8px;padding:9px;font-size:13px;cursor:pointer}
+  .out-opts button.sel{border-color:var(--blue);background:#12233d}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12.5px}
+  th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line);
+        font-variant-numeric:tabular-nums;white-space:nowrap}
+  th{color:var(--dim);font-weight:600;text-transform:uppercase;font-size:10.5px;letter-spacing:.04em}
+  th:first-child,td:first-child{text-align:left}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:6px 0 14px}
+  .stat{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+  .stat .n{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+  .stat .l{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.04em}
+  .toolbar{display:flex;gap:10px;margin-top:14px}
+  .toolbar .btn{width:auto;flex:1}
+  .hint{font-size:12px;color:var(--dim);margin-top:10px}
+  .full{grid-column:1/-1}
+  .badge{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--chip);color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>5-Min ORB — Manual Forward Tester <span class="badge">MNQ</span></h1>
+  <div class="sub">Step through history one day at a time. Measure the opening-range width off your chart, type it in with the day's ADX/ATR, log the result. Your log saves in this browser automatically.</div>
+
+  <div class="cfg">
+    <b>Champion rules baked in:</b> 15-min OR (09:30–09:45 ET) · 2-tick offset · both directions
+    filtered by VWAP slope · skip if OR width&nbsp;&gt;&nbsp;130 pts · trade only if prior-day daily
+    ADX(14)&nbsp;≥&nbsp;20 · target = entry&nbsp;±&nbsp;1.5&nbsp;×&nbsp;prior-day ATR(14) · stop = opposite OR extreme ·
+    1&nbsp;trade/day · flat 15:55 ET. Costs: $1.24 commission + 1-tick slippage. MNQ = $2/point.
+  </div>
+
+  <div class="grid">
+    <!-- INPUTS -->
+    <div class="card">
+      <h2>1 · The day's inputs</h2>
+      <div class="row">
+        <div><label>Date</label><input id="date" type="date"></div>
+        <div><label>VWAP slope over the OR</label>
+          <select id="vwap">
+            <option value="up">Rising → longs only</option>
+            <option value="down">Falling → shorts only</option>
+          </select></div>
+      </div>
+      <div class="row">
+        <div><label>OR width — points (you measure it)</label><input id="orWidth" type="number" step="0.25" placeholder="e.g. 52"></div>
+        <div><label>Prior-day ADX(14) — daily</label><input id="adx" type="number" step="0.1" placeholder="e.g. 21"></div>
+      </div>
+      <div class="row">
+        <div><label>Prior-day ATR(14) — daily <span style="opacity:.6">(optional)</span></label><input id="atr" type="number" step="1" placeholder="e.g. 770"></div>
+        <div></div>
+      </div>
+
+      <div class="verdict" id="verdict">
+        <div class="vhead" id="vhead" style="color:var(--txt)">— enter values —</div>
+        <div class="vreason" id="vreason"></div>
+        <div class="gates" id="gates"></div>
+        <div class="levels" id="levels">
+          <div class="lvl"><span>OR width</span><b id="lWidth">—</b></div>
+          <div class="lvl"><span>Stop distance (your risk)</span><b id="lRisk">—</b></div>
+          <div class="lvl"><span>Target distance (1.5×ATR)</span><b id="lTarget">—</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTCOME -->
+    <div class="card">
+      <h2>2 · What actually happened</h2>
+      <label>After the OR closed, what did price do? (watch to 15:55&nbsp;ET)</label>
+      <div class="out-opts" id="outOpts">
+        <button data-r="none" class="sel">Never filled</button>
+        <button data-r="stop">Hit the stop</button>
+        <button data-r="eod">Ran to 15:55</button>
+      </div>
+      <div id="eodWrap" style="display:none">
+        <label>Points captured to 15:55 — measure it yourself<br>
+          <span style="opacity:.7">(+ if the trade went your way, − if it was underwater at the close)</span></label>
+        <input id="eodPts" type="number" step="0.25" placeholder="e.g. 240  or  -35">
+      </div>
+
+      <div class="verdict" style="margin-top:12px">
+        <div class="lvl"><span>Result</span><b id="oResult">—</b></div>
+        <div class="lvl"><span>Points</span><b id="oPts">—</b></div>
+        <div class="lvl"><span>Net P&amp;L (1 micro)</span><b id="oNet">—</b></div>
+      </div>
+
+      <button class="btn" id="logBtn" style="margin-top:14px" disabled>➕ Log this day</button>
+      <div class="hint">“Never filled” logs a no-trade day (0 P&amp;L). Only days that passed the gates <i>and</i> filled count as trades in your stats.</div>
+    </div>
+
+    <!-- LOG -->
+    <div class="card full">
+      <h2>3 · Your running results</h2>
+      <div class="stats">
+        <div class="stat"><div class="n" id="sTrades">0</div><div class="l">Trades</div></div>
+        <div class="stat"><div class="n" id="sWin">—</div><div class="l">Win rate</div></div>
+        <div class="stat"><div class="n" id="sNet">$0</div><div class="l">Net P&amp;L</div></div>
+        <div class="stat"><div class="n" id="sPF">—</div><div class="l">Profit factor</div></div>
+      </div>
+      <div style="overflow-x:auto">
+      <table id="tbl">
+        <thead><tr>
+          <th>Date</th><th>Decision</th><th>Width</th><th>Exit</th><th>Pts</th><th>Net $</th><th></th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      </div>
+      <div class="toolbar">
+        <button class="btn ghost" id="exportBtn">⬇ Export CSV</button>
+        <button class="btn ghost" id="clearBtn">🗑 Clear all</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- champion constants (match orb_strategy.py) ----
+const PV=2.0, OFFSET=0.5, ADX_MIN=20, MAX_OR=130, ATR_MULT=1.5;
+const COMM=1.24;              // commission round-turn
+const FRICT_STOP=2.24;       // commission + 2-tick slippage (entry + stop fill)
+const FRICT_EOD=1.74;        // commission + 1-tick slippage (entry only; clean flatten)
+const $=id=>document.getElementById(id);
+const money=v=>(v<0?'-$':'$')+Math.abs(v).toFixed(2);
+
+let outcome='none';   // none | stop | eod
+let calc=null;        // current computed setup (null = no valid trade)
+
+function compute(){
+  const width=parseFloat($('orWidth').value);
+  const adx=parseFloat($('adx').value);
+  const atr=parseFloat($('atr').value);
+  const vwap=$('vwap').value;
+  const have = !isNaN(width) && width>0 && !isNaN(adx);
+
+  const adxOk = have && adx>=ADX_MIN;
+  const widthOk = have && width<=MAX_OR;
+  const side = vwap==='up' ? 'long' : 'short';
+
+  const g=(state,txt)=>`<div class="gate"><span class="dot ${state}"></span>${txt}</div>`;
+  let gatesHtml='';
+  if(have){
+    gatesHtml += g(adxOk?'ok':'bad', `ADX ${adx} ${adxOk?'≥':'<'} 20  ${adxOk?'✓ trending':'✗ chop — stand down'}`);
+    gatesHtml += g(widthOk?'ok':'bad', `OR width ${width} ${widthOk?'≤':'>'} 130  ${widthOk?'✓ clean':'✗ too wide — skip'}`);
+    gatesHtml += g('ok', `VWAP ${vwap==='up'?'rising → LONG side':'falling → SHORT side'}`);
+  } else {
+    gatesHtml = g('na','enter OR width and ADX…');
+  }
+  $('gates').innerHTML=gatesHtml;
+
+  const tradeable = have && adxOk && widthOk;
+  const vh=$('vhead'), vr=$('vreason'), lv=$('levels');
+
+  if(!have){ vh.textContent='— enter values —'; vh.style.color='var(--txt)'; vr.textContent='';
+             lv.style.display='none'; calc=null; refreshOutcome(); return; }
+
+  if(!tradeable){
+    vh.textContent='⛔ NO TRADE'; vh.style.color='var(--red)';
+    vr.textContent = !adxOk ? 'Prior-day ADX below 20 — market isn’t trending, the strategy stands down.'
+                            : 'Opening range wider than 130 pts — chaotic open, filtered out.';
+    lv.style.display='none'; calc=null; refreshOutcome(); return;
+  }
+
+  // valid trade — width-based geometry
+  const stopDist = +(width + 2*OFFSET).toFixed(2);       // trigger-to-stop distance
+  const riskNet  = -(stopDist*PV) - (FRICT_STOP-COMM) - COMM; // = -(stopDist*2) - 2.24
+  calc={date:$('date').value, side, width, stopDist, atr:isNaN(atr)?null:atr};
+
+  vh.innerHTML = side==='long' ? '🟢 TRADE — LONG' : '🔴 TRADE — SHORT';
+  vh.style.color = side==='long' ? 'var(--grn2)' : 'var(--red)';
+  vr.textContent = 'Place a '+(side==='long'?'buy-stop above the OR high':'sell-stop below the OR low')
+                   +'. One trade only. Flat by 15:55 ET.';
+  $('lWidth').textContent=width+' pts';
+  $('lRisk').textContent=stopDist.toFixed(2)+' pts  ≈ '+money(riskNet);
+  $('lTarget').textContent = isNaN(atr) ? '— (enter ATR)' : (ATR_MULT*atr).toFixed(0)+' pts away';
+  lv.style.display='block';
+  refreshOutcome();
+}
+
+function refreshOutcome(){
+  $('eodWrap').style.display = (calc && outcome==='eod') ? 'block' : 'none';
+  let pts=null, net=null, resTxt='—';
+
+  if(!calc){
+    resTxt='No trade (gate failed)'; pts=0; net=0;
+    $('logBtn').disabled = isNaN(parseFloat($('orWidth').value));
+  } else if(outcome==='none'){
+    resTxt='Never filled — no trade'; pts=0; net=0; $('logBtn').disabled=false;
+  } else if(outcome==='stop'){
+    pts = -calc.stopDist; net = +(pts*PV - FRICT_STOP).toFixed(2); resTxt='Stopped out';
+    $('logBtn').disabled=false;
+  } else { // eod
+    const m=parseFloat($('eodPts').value);
+    if(isNaN(m)){ resTxt='enter points captured…'; $('logBtn').disabled=true; }
+    else{ pts=+m.toFixed(2); net=+(pts*PV - FRICT_EOD).toFixed(2); resTxt='Flat at 15:55';
+          $('logBtn').disabled=false; }
+  }
+  $('oResult').textContent=resTxt;
+  $('oPts').textContent = pts===null?'—':pts.toFixed(2);
+  $('oNet').textContent = net===null?'—':money(net);
+  $('oNet').className = net===null?'':(net>=0?'pos':'neg');
+  window._pending = (pts===null)?null:{pts,net,resTxt};
+}
+
+$('outOpts').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  $('outOpts').querySelectorAll('button').forEach(x=>x.classList.remove('sel'));
+  b.classList.add('sel'); outcome=b.dataset.r; refreshOutcome();
+});
+
+// ---- log storage ----
+const KEY='orbManualLog2';
+const load=()=>JSON.parse(localStorage.getItem(KEY)||'[]');
+const save=r=>localStorage.setItem(KEY,JSON.stringify(r));
+
+function render(){
+  const rows=load(), tb=$('tbody'); tb.innerHTML='';
+  let trades=0,wins=0,gp=0,gl=0,net=0;
+  rows.forEach((r,i)=>{
+    const isTrade = r.decision==='long' || r.decision==='short';
+    if(isTrade && r.exitTxt!=='no fill'){ trades++; if(r.net>0){wins++;gp+=r.net;} else if(r.net<0){gl+=-r.net;} }
+    net+=r.net;
+    const dec = r.decision==='long'?'🟢 LONG':r.decision==='short'?'🔴 SHORT':'⛔ skip';
+    tb.insertAdjacentHTML('beforeend',`<tr>
+      <td>${r.date||'—'}</td><td>${dec}</td><td>${r.width??'—'}</td>
+      <td>${r.exitTxt||'—'}</td>
+      <td>${r.pts!=null?r.pts.toFixed(2):'—'}</td>
+      <td class="${r.net>0?'pos':r.net<0?'neg':''}">${money(r.net)}</td>
+      <td><button class="btn ghost" style="padding:2px 8px" onclick="del(${i})">✕</button></td></tr>`);
+  });
+  $('sTrades').textContent=trades;
+  $('sWin').textContent = trades? (wins/trades*100).toFixed(0)+'%' : '—';
+  $('sNet').textContent = money(net);
+  $('sNet').className='n '+(net>=0?'pos':'neg');
+  $('sPF').textContent = gl>0 ? (gp/gl).toFixed(2) : (gp>0?'∞':'—');
+}
+window.del=i=>{ const r=load(); r.splice(i,1); save(r); render(); };
+
+$('logBtn').onclick=()=>{
+  const p=window._pending;
+  let entry={date:$('date').value};
+  if(!calc){
+    entry.decision='NO TRADE'; entry.width=parseFloat($('orWidth').value)||null;
+    entry.net=0; entry.pts=null; entry.exitTxt='skipped';
+  } else if(outcome==='none'){
+    entry.decision=calc.side; entry.width=calc.width; entry.net=0; entry.pts=null; entry.exitTxt='no fill';
+  } else {
+    if(p===null) return;
+    entry.decision=calc.side; entry.width=calc.width; entry.pts=p.pts; entry.net=p.net; entry.exitTxt=p.resTxt;
+  }
+  const r=load(); r.push(entry); save(r); render();
+  ['orWidth','eodPts'].forEach(id=>$(id).value='');
+  outcome='none'; $('outOpts').querySelectorAll('button').forEach((x,i)=>x.classList.toggle('sel',i===0));
+  compute(); $('orWidth').focus();
+};
+
+$('exportBtn').onclick=()=>{
+  const r=load(); if(!r.length){alert('Nothing to export yet.');return;}
+  const head=['date','decision','width','exit','points','net'];
+  const lines=[head.join(',')].concat(r.map(x=>[x.date,x.decision,x.width??'',
+    x.exitTxt??'',x.pts??'',x.net].join(',')));
+  const blob=new Blob([lines.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='orb_manual_log.csv'; a.click();
+};
+$('clearBtn').onclick=()=>{ if(confirm('Delete the entire log?')){ save([]); render(); } };
+
+['orWidth','adx','atr','vwap','eodPts'].forEach(id=>$(id).addEventListener('input',compute));
+compute(); render();
+</script>
+</body>
+</html>
