@@ -102,6 +102,42 @@ with their own eyes, we built:
   **2026-05-13** (short, w~109, stop −$222), **2026-06-16** (short, w~110, +$717).
   As of the handoff, the user is working through these.
 
+### 3e. Returns-improvement research (2026-07-01) — DONE, do not redo the signal part
+The user asked to improve returns. **Signal re-tuning was NOT reopened** (grid
+re-audit confirmed: only the champion's own atr2.5 twin beats it inside the DD
+cap, by a noise-level +$490/7yr, and ATR-mult changes already failed OOS).
+Instead we built **`Python/_scaling_mc.py`** — a session-clock Monte Carlo of the
+full FLEX account lifecycle (eval → funded → blow → new eval), with buffer-based
+contract scaling, payout sweeps, eval fees/resets, and the 50% consistency rule.
+Verified: closed-form fee cross-checks, anchors vs `orb_montecarlo.py`, seed
+stability, determinism. Findings (10k paths, block=21 over 1,823 RTH sessions):
+
+1. **The old "median 77 days to pass" was mis-clocked** — `orb_montecarlo.py`
+   counts *trades* as days. True figure at 1 micro ≈ **244 calendar days**
+   (only ~70% pass within a year). RESULTS.md scaling math was ~3× optimistic
+   on cycle speed.
+2. **Eval at 2 micros dominates**: blow rate rises 7%→30%, but a blown eval
+   costs only the $95 reset. Campaign (repeat-until-pass): median **120 days
+   & $139 total fees** vs 257 days & $106 at 1 micro. 3 micros: 87d/$168
+   (consistency rule starts binding ~10% of passes; modeled).
+3. **Funded scaling ladder**: contracts = 1 per $2,000 of headroom above the
+   MLL, cap 3–5, extract profits via Lucid payout cycles. Scale-downs in
+   drawdowns actually LOWER death risk vs static-1 (0.06→0.02 deaths/yr).
+4. **The firm rules are CONFIRMED (Lucid support, 2026-07-01)** — 50K
+   LucidFlex: MLL trails EOD balance at −$2,000 until a close above $52,100,
+   then **locks at $50,100 forever** (withdrawals do NOT move it — the lock
+   the whole scaling case depended on is REAL). Payouts: 5 days of ≥$150
+   each per cycle → request 50% of profit up to $2,000 (min $500), **90/10
+   split**, no funded consistency rule, 40-micro cap both stages.
+5. **Final numbers (all Lucid rules modeled, income post-90/10-split, net of
+   fees, per 50K slot, 5-yr lifecycle sim):** current plan (eval@1 + funded
+   static 1) **≈$2,700/yr**; eval@2 + cap-3 ladder **≈$5,600/yr (2.1×)**;
+   eval@2 + cap-5 ladder **≈$9,300/yr (3.4×)** — with better 5th-percentile
+   and fewer deaths. Caveat: the $2,000/payout cap throttles cash extraction
+   (~$7k/yr cash at cap-5; the rest accrues as account balance, credited at
+   90% in these totals). Verified by adversarial review + independent
+   from-scratch reproduction (all headline numbers within MC noise).
+
 ---
 
 ## 4. Gotchas & facts that MUST NOT be lost
@@ -144,14 +180,17 @@ with their own eyes, we built:
 
 ## 6. Open items / next steps (in priority order)
 
-1. **Finish the manual spot-check** (optional confidence): a few more days from
+1. ~~Confirm the FLEX trailing-DD lock rule with the firm~~ **DONE 2026-07-01**
+   (user asked Lucid support; answers in Section 3e item 4 — lock is real,
+   scaling is viable).
+2. **Finish the manual spot-check** (optional confidence): a few more days from
    the answer key vs the user's chart. If they keep matching, validation is done.
-2. **Real forward test** — either let FiveMinuteORB run live on **Sim101** from
+3. **Real forward test** — either let FiveMinuteORB run live on **Sim101** from
    now, or keep manually stepping through history with the tester. This is the
-   gate before any money.
-3. **Confirm the FLEX trailing-DD lock rule** with the firm (when/if the drawdown
-   line locks at start balance after a buffer) — decisive for sizing safety.
-4. **Pass a 25K eval → execute the 50K compounding plan.**
+   gate before any money (and before acting on any Section-3e upgrade).
+4. **Pass a 25K eval → execute the 50K compounding plan** — with the Section-3e
+   upgrades: **evals at 2 micros; funded = 1 micro per $2,000 headroom, cap
+   3–5**.
 5. Remember the **correlated-risk caveat**: copy-trading N accounts is one bet
    replicated N times; a bad stretch blows them together. Stagger start dates.
 

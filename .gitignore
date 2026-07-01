@@ -29,6 +29,9 @@ Python/*_heatmap.png
 # tiny strategy-debug dump (OR markers), not a result
 Python/orb_out.txt
 
+# RTH session-calendar cache for _scaling_mc.py — regenerates on first run
+Python/_sessions_rth.csv
+
 # NOTE: Python/MNQ_full_1min.csv (57 MB, the master stitched dataset) IS
 # committed on purpose — it is the single artifact a fresh session needs to
 # re-run every backtest. It is under GitHub's 100 MB hard limit.

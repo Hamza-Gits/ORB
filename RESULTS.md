@@ -101,8 +101,26 @@ Takeaways:
 
 The user's plan: start with a 25K eval, and after the **first payout**,
 reinvest everything into **50K evals**, recycling every subsequent payout into
-more 50K evals across a full year. Cycle length = the Monte Carlo median of
-**~77 days** to pass and bank a payout.
+more 50K evals across a full year.
+
+> ### ⚠️ Correction (2026-07-01): the "median 77 days" was mis-clocked
+> `orb_montecarlo.py` counts **trades** as days (the strategy trades ~47% of
+> sessions), so its "77 days to pass" is really **~244 calendar days** at
+> 1 micro — the cycle math below is ~3× too fast. The session-clock simulator
+> `Python/_scaling_mc.py` gives the corrected picture and the fix: run **evals
+> at 2 micros** (median 120 calendar days & $139 total fees per pass,
+> repeat-until-pass, 50% consistency rule modeled) and, once funded, scale
+> **1 micro per $2,000 of headroom above the MLL (cap 3–5)**, extracting via
+> Lucid payout cycles. All 50K LucidFlex rules are **confirmed with the firm
+> (2026-07-01)** and modeled: MLL locks at $50,100 after a close above
+> $52,100 and does not follow withdrawals; payouts = 5×$150 qualifying days →
+> 50% of profit up to $2,000/request (min $500) at a **90/10 split**; no
+> funded consistency rule. Full-lifecycle income per 50K slot, net of fees,
+> post-split: **~$2,700/yr (current plan) → ~$5,600/yr (cap 3) → ~$9,300/yr
+> (cap 5)**, with fewer account deaths. Note the $2,000/payout cap throttles
+> cash extraction (~$7k/yr cash at cap-5; the rest accrues as withdrawable
+> account balance). Verified by adversarial review + independent from-scratch
+> reproduction. See CONTEXT.md §3e.
 
 **Model assumptions (verify the starred ones with the firm):**
 - 50K profit target = $3,000; trader keeps **80%*** of it = $2,400 payout.

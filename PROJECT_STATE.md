@@ -70,10 +70,15 @@ decision:
   once you've banked enough buffer. No intraday daily limit means a single bad
   day can't fail you on a daily rule — only the trailing drawdown matters.
 - **Consistency rule applies in the eval only**, not once funded.
-- **Open question to confirm with the firm:** exactly when/whether the trailing
-  DD locks at start balance after a buffer. This is decisive for sizing and was
-  flagged as an assumption in the Monte Carlo (we modeled both "lock at start"
-  and strict "always trailing").
+- ~~Open question: when/whether the trailing DD locks~~ **CONFIRMED with Lucid
+  support (2026-07-01), 50K LucidFlex:** the MLL trails the EOD balance at
+  −$2,000 until the account **closes above $52,100**, then **locks at $50,100
+  permanently**; withdrawals do NOT move the locked line. Payouts: 5 days of
+  ≥$150 profit each per cycle → request 50% of profit up to $2,000 (min $500),
+  **90/10 split**, no cooldown. 40-micro cap in eval AND funded. These rules
+  are modeled exactly in `Python/_scaling_mc.py` — see CONTEXT.md §3e for the
+  income-per-slot implications (2-micro evals + funded scaling ladder ≈ 2–3.4×
+  the static plan).
 
 **Sizing conclusion: 1 micro per 50K account.** The strategy's natural variance
 is tighter than the account limits only at 1 micro. At 2 micro, Monte Carlo
