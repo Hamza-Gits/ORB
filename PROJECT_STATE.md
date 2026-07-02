@@ -31,9 +31,10 @@ a **FLEX EVAL prop account**.
 **The champion (memorize this):**
 `15-min OR / 2-tick offset / both directions / vwap_slope bias / OR width ≤ 130 pts /
 ADX(14) ≥ 20 regime filter / target = entry ± 1.5 × prior-day daily ATR(14).`
-Net **+$27,603 / 7 years / 1 micro**, PF 1.45, 45.1% win, max EOD drawdown
-**−$1,607** (fits the 50K account's $2,000 limit). Full details in
-[`CHAMPION.md`](CHAMPION.md).
+Net **+$27,025 / 7 years / 1 micro**, PF 1.44, 44.1% win, max EOD drawdown
+**−$1,769** (fits the 50K account's $2,000 limit). Figures are post the
+**2026-07-02 data audit** (one corrupt bar + weekend junk bars removed; see
+CONTEXT.md §3f). Full details in [`CHAMPION.md`](CHAMPION.md).
 
 ---
 
@@ -83,7 +84,7 @@ decision:
 **Sizing conclusion: 1 micro per 50K account.** The strategy's natural variance
 is tighter than the account limits only at 1 micro. At 2 micro, Monte Carlo
 shows 30–48% blow rates — unsafe. The 25K's $1,000 limit is too tight even at
-1 micro (the champion's −$1,607 max DD would breach it), so **the 50K is the
+1 micro (the champion's −$1,769 max DD would breach it), so **the 50K is the
 right vehicle**; the 25K is just the cheap entry ticket that funds the first
 50K batch.
 
@@ -139,7 +140,8 @@ what it is, not just *what* it is.
 
 7. **Monte Carlo prop-survival** (block bootstrap, 10k paths, simulating the
    day-by-day race to the $3,000 target vs. the $2,000 trailing-DD blow):
-   **50K @ 1 micro = 90% pass / 9% blow, median 77 days to pass.** See
+   **50K @ 1 micro = ~90% pass / ~9% blow, median 77 TRADE-days ≈ 241 calendar
+   days to pass** (clock corrected 2026-07-01, see `_scaling_mc.py`). See
    [`RESULTS.md`](RESULTS.md#monte-carlo--prop-survival).
 
 8. **Ported to NinjaScript and parity-verified** (Section 5 below).
@@ -166,8 +168,9 @@ what it is, not just *what* it is.
 | Flat by | 15:55 ET |
 | Costs modeled | $1.24 round-turn commission + 1 tick slippage |
 
-**Headline result (1 micro, 2019–2026):** net **+$27,603**, PF **1.45**, win
-**45.1%**, max EOD DD **−$1,607**, Sharpe **2.27**, 862 trades. Positive every
+**Headline result (1 micro, 2019–2026, post-audit clean data):** net
+**+$27,025**, PF **1.44**, win **44.1%**, max EOD DD **−$1,769**, Sharpe
+**1.50** calendar (2.22 on trade-days only), 836 trades. Positive every
 full year including the 2022 bear. Full breakdown in [`RESULTS.md`](RESULTS.md).
 
 ---
@@ -180,7 +183,9 @@ matching the Python `_atr`/`_adx`), self-accumulated session VWAP, OR-width
 filter, `vwap_slope` bias, ADX regime, and ATR target. Defaults = the champion.
 Compiles clean (F5, no errors).
 
-**Parity result** (NT Strategy Analyzer, continuous back-adjusted MNQ, 2019–2026):
+**Parity result** (NT Strategy Analyzer, continuous back-adjusted MNQ, 2019–2026;
+both columns are PRE-audit — the Python side is now 836 / +$27,025 on clean data,
+see CONTEXT.md §3f; the comparison's conclusion is unaffected):
 
 | Metric | Python | NinjaTrader |
 |---|---|---|
@@ -277,8 +282,9 @@ only if it beats the champion *out-of-sample*.
   trap; and $376 over 104 Mondays is noise).
 
 **The decisive evidence the edge is real, not fit:** the champion's performance
-got *better* on unseen data — IS (2019–2023) PF 1.38 / +$14,472 vs. OOS
-(2024–2026) PF **1.59** / +$13,120.
+got *better* on unseen data — on post-audit clean data, IS (2019–2023) PF 1.37 /
++$14,310 vs. OOS (2024–2026) PF **1.62** / +$12,762. (Pre-audit: 1.38 → 1.59 —
+same pattern.)
 
 **Conclusion locked in:** the config is at its ceiling for this dataset. More
 backtesting now produces *negative* information (each extra test burns
@@ -289,7 +295,7 @@ comes from forward-testing, not more tuning.
 
 ## 7. The honest risks (do not let optimism bury these)
 
-1. **Backtest PF 1.45 → live will likely be lower.** Slippage, fills, and feed
+1. **Backtest PF 1.44 → live will likely be lower.** Slippage, fills, and feed
    differences always erode a backtest. Forward-testing measures the real gap.
 2. **Copy-traded accounts are perfectly correlated.** Running the champion on
    10 accounts is NOT 10 independent 9%-blow bets — it's ONE bet replicated 10
@@ -373,7 +379,7 @@ ORB/
 ├─ PROJECT_STATE.md          <- you are here (master handoff)
 ├─ Manual Tester/
 │  ├─ ORB_Manual_Tester.html <- browser calculator (width-based; logs trades + running stats)
-│  └─ orb_answer_key.csv     <- all 862 champion trades + running P&L (spot-check reference)
+│  └─ orb_answer_key.csv     <- all 836 champion trades + running P&L (spot-check reference)
 ├─ CHAMPION.md               <- exact winning config, Python + NinjaScript
 ├─ RESULTS.md                <- all stats, yearly/monthly, Monte Carlo, scaling math
 ├─ SCRIPTS.md                <- what each Python tool does

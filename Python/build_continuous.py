@@ -97,6 +97,12 @@ def main():
     if not args.full:
         keep = keep.between_time(args.session_start, args.session_end, inclusive="both")
 
+    # ---- drop weekend bars (2026-07-02 audit): there is no real CME trading in
+    # this session window on Sat/Sun — only sporadic volume<=8 administrative
+    # prints (plus one corrupt 0.50-price bar on 2024-01-20). Left in, they form
+    # fake stub "days" inside the daily ATR/ADX series used by the regime filter.
+    keep = keep[keep.index.weekday < 5]
+
     # ---- roll report ----
     print("\nFront-month coverage (auto-detected rolls):")
     span = {}

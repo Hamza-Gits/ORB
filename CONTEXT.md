@@ -34,10 +34,10 @@ ADX(14) ≥ 20 / target = entry ± 1.5 × prior-day daily ATR(14) / stop = oppos
 OR extreme / 1 trade per day / flat by 15:55 ET.`
 
 - Costs modeled: **$1.24 round-turn commission + 1-tick slippage.** MNQ = **$2/point**, tick = 0.25 pt.
-- **Headline (1 micro, 2019–2026): +$27,603 net, PF 1.45, 45.1% win, max EOD DD −$1,607** (fits the 50K account's $2,000 limit).
-- **Sizing: 1 micro per 50K account** (Monte Carlo: 90% pass / 9% blow; 2 micro blows 30–48% — unsafe).
-- **~1-year return ≈ 9% of a 50K account per micro** (~$4,500/yr avg of the 6 full backtest years; Monte-Carlo median ~$3,900 ≈ 8%). Backtested, not guaranteed.
-- Per-year net/micro: 2020 +$4.3k, 2021 +$4.4k, 2022 +$5.3k (bear), 2023 +$1.1k (chop, its weakest regime), 2024 +$5.7k, 2025 +$6.2k, 2026-YTD +$1.2k, 2019 partial −$0.6k.
+- **Headline (1 micro, 2019–2026, post-audit clean data): +$27,025 net, PF 1.44, 44.1% win, max EOD DD −$1,769** (fits the 50K account's $2,000 limit). 836 trades. (Pre-audit figures were 862 / +$27,603 / −$1,607 — see §3f.)
+- **Sizing: 1 micro per 50K account** (Monte Carlo: ~90% pass / 9% blow; STATIC 2 micro blows 30–48% — unsafe; buffer-based scaling after banking profit is the safe way up, §3e).
+- **~1-year return ≈ 8–9% of a 50K account per micro** (~$4,300/yr avg of the 6 full backtest years; Monte-Carlo median ~$3,650 ≈ 7%). Backtested, not guaranteed.
+- Per-year net/micro: 2020 +$3.5k, 2021 +$5.0k, 2022 +$4.4k (bear), 2023 +$1.7k (chop, its weakest regime), 2024 +$4.6k, 2025 +$5.7k, 2026-YTD +$2.4k, 2019 partial −$0.2k.
 - **Why it works:** win rate is only ~42–45% but wins are far bigger than the capped losses. Losses ≈ OR width × $2 (stop = opposite OR extreme). Winners ride to the 15:55 flatten. The ATR target (~600–1,300 pts) is almost never hit intraday — most winners are profitable 15:55 exits, not target hits. **The edge = small capped losses + letting winners run to the bell.** Do NOT add trailing stops or tighter stops — tested, they kill it.
 
 ---
@@ -84,10 +84,11 @@ with their own eyes, we built:
   print exact entry/stop prices from width alone, so for live levels the user
   supplies the OR High and we compute Entry = ORHigh+0.50, Stop = ORLow−0.50,
   Target = Entry ± 1.5×ATR).
-- **`Manual Tester/orb_answer_key.csv`** — the "answer key": all **862 champion
-  trades** with date, side, or_width, prior_adx, entry_et, exit, points, net,
-  cum_net. Lets the user spot-check their manual reads against the real engine
-  instead of grinding every day by hand. Regenerate with **`Python/_answer_key.py`**.
+- **`Manual Tester/orb_answer_key.csv`** — the "answer key": all **836 champion
+  trades** (regenerated after the 2026-07-02 data audit, §3f) with date, side,
+  or_width, prior_adx, entry_et, exit, points, net, cum_net. Lets the user
+  spot-check their manual reads against the real engine instead of grinding
+  every day by hand. Regenerate with **`Python/_answer_key.py`**.
 
 ### 3d. The user began verifying by hand — and it MATCHED
 - Verified **2026-04-15**: after correcting a measurement mistake (they first
@@ -116,10 +117,10 @@ stability, determinism. Findings (10k paths, block=21 over 1,823 RTH sessions):
    counts *trades* as days. True figure at 1 micro ≈ **244 calendar days**
    (only ~70% pass within a year). RESULTS.md scaling math was ~3× optimistic
    on cycle speed.
-2. **Eval at 2 micros dominates**: blow rate rises 7%→30%, but a blown eval
-   costs only the $95 reset. Campaign (repeat-until-pass): median **120 days
-   & $139 total fees** vs 257 days & $106 at 1 micro. 3 micros: 87d/$168
-   (consistency rule starts binding ~10% of passes; modeled).
+2. **Eval at 2 micros dominates**: blow rate rises ~9%→33%, but a blown eval
+   costs only the $95 reset. Campaign (repeat-until-pass): median **123 days
+   & $142 total fees** vs 259 days & $107 at 1 micro. 3 micros: 91d/$172
+   (consistency rule starts binding ~13% of passes; modeled).
 3. **Funded scaling ladder**: contracts = 1 per $2,000 of headroom above the
    MLL, cap 3–5, extract profits via Lucid payout cycles. Scale-downs in
    drawdowns actually LOWER death risk vs static-1 (0.06→0.02 deaths/yr).
@@ -130,13 +131,42 @@ stability, determinism. Findings (10k paths, block=21 over 1,823 RTH sessions):
    each per cycle → request 50% of profit up to $2,000 (min $500), **90/10
    split**, no funded consistency rule, 40-micro cap both stages.
 5. **Final numbers (all Lucid rules modeled, income post-90/10-split, net of
-   fees, per 50K slot, 5-yr lifecycle sim):** current plan (eval@1 + funded
-   static 1) **≈$2,700/yr**; eval@2 + cap-3 ladder **≈$5,600/yr (2.1×)**;
-   eval@2 + cap-5 ladder **≈$9,300/yr (3.4×)** — with better 5th-percentile
-   and fewer deaths. Caveat: the $2,000/payout cap throttles cash extraction
-   (~$7k/yr cash at cap-5; the rest accrues as account balance, credited at
-   90% in these totals). Verified by adversarial review + independent
-   from-scratch reproduction (all headline numbers within MC noise).
+   fees, per 50K slot, 5-yr lifecycle sim, post-audit clean data):** current
+   plan (eval@1 + funded static 1) **≈$2,650/yr**; eval@2 + cap-3 ladder
+   **≈$5,450/yr (2.1×)**; eval@2 + cap-5 ladder **≈$9,000/yr (3.4×)** — with
+   better 5th-percentile and fewer deaths. Caveat: the $2,000/payout cap
+   throttles cash extraction (~$7k/yr cash at cap-5; the rest accrues as
+   account balance, credited at 90% in these totals). Verified by adversarial
+   review + independent from-scratch reproduction (all headline numbers
+   within MC noise).
+
+### 3f. Full data + engine audit (2026-07-02) — PASSED, with one data fix
+Pre-forward-test audit of the engine, data, and overfitting evidence:
+- **Engine (`orb_strategy.py`): clean.** Line-by-line review found no lookahead
+  (OR/bias/regime/target all decided at OR close or from day i−1), pessimistic
+  same-bar stop-first resolution, costs correct. Headline reproduced to the
+  penny pre-fix (862 / $27,603.12 / PF 1.4512 / −$1,606.92).
+- **Data fix:** `MNQ_full_1min.csv` had ONE corrupt bar (2024-01-20, a
+  SATURDAY, open/low = 0.50 vs market ≈17,463, volume 6) whose fake 17,463-pt
+  daily range poisoned Wilder ADX for weeks → wrongly admitted 32 extra trades
+  in Feb–May 2024 (+$978). It also had 903 weekend administrative-print bars
+  (volume ≤ 8, no real trading; the dataset is day-session 08:00–17:00 only)
+  forming fake stub "days" in the daily ATR/ADX series (96/862 trades had a
+  weekend stub as their "prior day"). **All weekend bars removed** from the
+  CSV and `build_continuous.py` now filters them on rebuild. Exhaustive scans
+  (rolling-median outliers, fat-finger ranges, intraday jumps) found nothing
+  else — every other outlier is a real event (CPI 08:30 bars, COVID, 2025-04).
+- **Clean baseline: 836 trades / +$27,025 / PF 1.44 / win 44.1% / maxDD
+  −$1,769 / worst 3-mo −$1,314.** Answer key regenerated (the user's five
+  manual spot-check trades are IDENTICAL). IS→OOS improved: PF 1.37 → 1.62.
+- **Overfitting checks: passed.** Champion sits on a parameter plateau (or 10m
+  ≈ 91% of champion net; targets atr1.0–2.5 within ±2%; offsets 0–2 flat; the
+  filters help but the strategy is profitable without them). OOS strengthens.
+  Honest caveats: `vwap_slope` is the one load-bearing discrete choice (validated
+  across 5 segments + OOS), and Sharpe should be quoted as **1.50**
+  (calendar) not 2.27 (trade-days-only inflation).
+- Grid CSVs (`mnq7_all_*.csv`) and the §5 NT parity table are pre-audit
+  artifacts — fine for relative comparisons, don't quote absolute nets.
 
 ---
 
@@ -198,7 +228,7 @@ stability, determinism. Findings (10k paths, block=21 over 1,823 RTH sessions):
 
 ## 7. The honest risks (carry these forward, do not let optimism bury them)
 
-1. Backtest PF 1.45 → **live will likely be lower** (slippage/fills erode it).
+1. Backtest PF 1.44 → **live will likely be lower** (slippage/fills erode it).
 2. **Copy-traded accounts are perfectly correlated** — the 9% blow rate is not diversified.
 3. The edge is **Nasdaq-trend-dependent**; 2023 chop nearly flattened it; an unseen regime could underperform.
 4. **Prop ROI is on the eval fee, not return-on-account** — don't frame it as an S&P-style % return (except when the user explicitly asks for the account-% figure, which is ~9%).
@@ -214,7 +244,7 @@ ORB/
 ├─ CHAMPION.md / RESULTS.md / SCRIPTS.md / README.md
 ├─ Manual Tester/
 │  ├─ ORB_Manual_Tester.html  <- browser calculator (width-based, logs + stats)
-│  └─ orb_answer_key.csv      <- all 862 champion trades + running P&L
+│  └─ orb_answer_key.csv      <- all 836 champion trades + running P&L
 ├─ Back Test Results/         <- raw NT exports (evidence); /3 = the Section-5b run
 ├─ NinjaTrader/FiveMinuteORB.cs  <- NT8 strategy, defaults = champion, parity-verified
 └─ Python/

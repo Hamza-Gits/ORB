@@ -22,51 +22,56 @@ prop-firm accounts** and compound the payouts.
   against the **firm's rules, confirmed directly with support**. A buffer-based
   contract-scaling plan gets **2–3.4× the income** of trading a flat 1 micro
   forever, with a *better* downside — same edge, smarter account management.
+- ✅ **Full data + engine audit (2026-07-02)**: headline numbers reproduce to
+  the penny; one corrupt bar and 903 weekend junk bars found and removed from
+  the dataset (−2% net, conclusions unchanged); parameter plateau + IS/OOS
+  re-verified on clean data.
 - ⏳ **Pending: forward-test** on NinjaTrader sim / Market Replay before risking
   any money. This is the next task.
 
 **The champion:** `15-min OR / 2-tick offset / both directions / vwap_slope bias /
 OR width ≤ 130 / ADX(14) ≥ 20 / target = entry ± 1.5 × prior-day ATR(14)` →
-**+$27,603 / 7 yr / 1 micro**, PF 1.45, max drawdown −$1,607 (fits the 50K limit).
+**+$27,025 / 7 yr / 1 micro**, PF 1.44, max drawdown −$1,769 (fits the 50K limit).
 
 ---
 
 ## The numbers, at a glance
 
-### The edge (backtest, 2019–2026, 862 trades, 1 micro contract)
+### The edge (backtest, 2019–2026, 836 trades, 1 micro contract)
 
 | Stat | Value |
 |---|---|
-| Win rate | 45.1% (389W / 473L) |
-| Avg win vs. avg loss | $228 vs. $129 (wins run **1.8×** bigger — this is the whole edge) |
-| Profit factor | 1.45 |
-| Sharpe | 2.27 |
-| Net profit | **+$27,603** |
-| Worst historical 3-month stretch | −$933 |
-| Max historical drawdown | −$1,607 (fits inside the 50K account's $2,000 limit) |
+| Win rate | 44.1% (369W / 467L) |
+| Avg win vs. avg loss | $238 vs. $130 (wins run **1.8×** bigger — this is the whole edge) |
+| Profit factor | 1.44 |
+| Sharpe | 1.50 (full-calendar) / 2.22 (trade-days only) |
+| Net profit | **+$27,025** |
+| Worst historical 3-month stretch | −$1,314 |
+| Max historical drawdown | −$1,769 (fits inside the 50K account's $2,000 limit) |
 | Positive years | every full calendar year on record, incl. the 2022 bear |
-| Chance any given year is a net loser | ≈4% (and small even then) |
+| In-sample vs out-of-sample | PF 1.37 (2019–23) → **1.62** (2024–26) — the edge *strengthened* on unseen data |
 
 ### Risk — what can actually go wrong
 
 | Risk | Old plan (static 1 micro) | New plan (2-micro eval + scaled funded) |
 |---|---|---|
-| Blow a single eval attempt (cost: $95 reset) | 8% | 31% (but passes ~2× faster overall) |
-| Median time to get funded (retry-until-pass) | 257 days | **120 days** |
-| Blow the funded account within year 1 | 7.8% | **6.5%** (scaling only adds size on top of banked, protected profit) |
-| Full-cycle "restart from scratch" rate | 1 in ~17 slot-years | 1 in ~50 slot-years |
+| Blow a single eval attempt (cost: $95 reset) | 9% | 33% (but passes ~2× faster overall) |
+| Median time to get funded (retry-until-pass) | 259 days | **123 days** |
+| Blow the funded account within year 1 | 8.5% | **7.1%** (scaling only adds size on top of banked, protected profit) |
+| Full-cycle "restart from scratch" rate | 1 in ~14 slot-years | 1 in ~50 slot-years |
 
 The 50K account's $2,000 max-loss line **locks permanently** once the balance
 closes above $52,100 (confirmed directly with the prop firm, Lucid) — after
 that the account cannot be blown below breakeven. The historical strategy has
-never even approached the $2,000 limit (worst stretch: −$933).
+never breached the $2,000 limit (worst 3-month stretch: −$1,314; worst
+peak-to-trough: −$1,769).
 
 ### Projected income per 50K account (5-year Monte Carlo, net of fees & split)
 
 | Plan | Avg $/yr | Bad-year (5th %ile) $/yr |
 |---|---|---|
-| Old: static 1 micro throughout | ~$2,700 | ~$1,050 |
-| **New: 2-micro evals + funded scaling ladder (cap 5)** | **~$9,300** | **~$1,900** |
+| Old: static 1 micro throughout | ~$2,650 | ~$950 |
+| **New: 2-micro evals + funded scaling ladder (cap 5)** | **~$9,000** | **~$1,600** |
 
 Full derivation, the simulator (`Python/_scaling_mc.py`), and the adversarial
 verification of every number: [`CONTEXT.md` §3e](CONTEXT.md).

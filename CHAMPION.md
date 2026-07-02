@@ -46,7 +46,8 @@ champion = replace(base,
 df   = load_csv("MNQ_full_1min.csv", tz="America/New_York")
 days = prepare_days(df)
 trades, metrics = run_prepared(days, champion)
-print(metrics)   # net ~ +$27,603, PF ~ 1.45, win ~ 45.1%, maxDD ~ -$1,607
+print(metrics)   # net ~ +$27,025, PF ~ 1.44, win ~ 44.1%, maxDD ~ -$1,769
+                 # (post-2026-07-02 data audit; see RESULTS.md)
 ```
 
 Everything not listed is the engine default (stop = opposite OR extreme,
@@ -105,6 +106,7 @@ one string (`atr1.5` → `target_mode="atr"`, `target_atr_mult=1.5`; `rr2.0` →
 ## Higher-return sibling (NOT prop-safe — for reference)
 
 Same core but `regime="none"` and `target_atr_mult=2.5` → net **+$36,142**,
-PF 1.39, but max DD **−$3,212** which **breaks the 50K's $2,000 limit**. Only
+PF 1.39 (pre-audit grid figures; see RESULTS.md audit note), but max DD
+**−$3,212** which **breaks the 50K's $2,000 limit**. Only
 viable on a larger/own-capital account or a churn-many-accounts approach. The
 prop-fit champion above is the one to actually trade on FLEX evals.
