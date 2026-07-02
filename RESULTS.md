@@ -180,6 +180,39 @@ split, fee) was built in-session; the numbers above are its defaults.
 
 ---
 
+## Pre-2019 reality check (NQ 2015–2018, frozen parameters)
+
+NQ per-contract 1-min data 2015–2018 (exported from NinjaTrader, stitched by
+`build_continuous.py` into `Python/NQ_2015_2018_1min.csv`, full audit battery
+clean) — the champion run **byte-for-byte frozen**, MNQ-equivalent costs:
+
+| Metric | 2015–2018 | 2019–2026 (for contrast) |
+|---|---|---|
+| Trades | 475 (~122/yr) | 836 (~119/yr) |
+| Win rate | 38.9% | 44.1% |
+| Profit factor | **0.94** | 1.44 |
+| Net | **−$737** | +$27,025 |
+| Max DD | −$1,582 | −$1,769 |
+| Years positive | 1 of 4 | 8 of 8 |
+
+**The edge did not exist before ~2019.** Gross of costs it was ≈ zero (friction
+accounts for ~$1,064 of the loss); the mechanics port perfectly (same trade
+frequency, same capped losses — max DD stayed under $1,600 even across four
+losing years), but the market didn't reward intraday breakout follow-through in
+that era. No simple observable separates the eras (intraday-vol correlation
+with yearly P&L is only 0.43 — 2018 had more vol than 2024/2025 and still
+lost); what separates them is **persistence of losing windows**: rolling
+6-month P&L negative in 64% of windows (2015–18) vs 7% (2019–26).
+
+**Consequences:** (1) all projections in this file are conditional on the
+post-2019 regime persisting — 2026 YTD (+$2,421) says it currently does;
+(2) pre-registered stand-down rule: if rolling 6-month P&L is negative at 3
+consecutive month-ends, stop buying evals and go sim-only until the rolling
+6-month sim P&L recovers; (3) do not re-tune the champion on 2015–18 — that
+would fit a market that no longer exists.
+
+---
+
 ## What these numbers are NOT
 
 - **Not live results.** Everything here is backtest/simulation. PF 1.44 will

@@ -168,6 +168,39 @@ Pre-forward-test audit of the engine, data, and overfitting evidence:
 - Grid CSVs (`mnq7_all_*.csv`) and the §5 NT parity table are pre-audit
   artifacts — fine for relative comparisons, don't quote absolute nets.
 
+### 3g. Pre-2019 NQ test (2026-07-02) — THE EDGE IS ERA-DEPENDENT (critical)
+The user bought nothing: he exported **NQ 2015–2018 per-contract 1-min data
+from NinjaTrader** (MNQ didn't exist yet; NQ = same index, so `instrument="MNQ"`
+on NQ prices gives the exact per-micro equivalent). `build_continuous.py`
+stitched it (`Python/NQ_2015_2018_1min.csv`, 532,673 bars, 1,031 sessions,
+audit battery CLEAN). The **frozen champion** (zero re-tuning) on it:
+
+- **PF 0.94, net −$737 over 4 years, win 38.9%, 3 of 4 years negative**
+  (2015 +$442, 2016 −$341, 2017 −$189, 2018 −$650). Costs ≈ $1,064 of the
+  loss → gross edge ≈ zero, not negative. maxDD −$1,582 (slow bleed, no crater).
+- **Conclusion: the edge is NOT timeless.** It turned on ~2019–2020 (micro
+  launch / 0DTE era / post-COVID intraday dynamics — cause unproven). The
+  2024–26 OOS validation still proves it isn't curve-fit *within* the modern
+  era; this proves the modern era itself is the bet.
+- **No simple gate detects the regime**: intraday-vol (OR% of price) correlates
+  only 0.43 with yearly P&L — 2018 had MORE vol than 2024/2025 yet lost. The
+  regimes differ in breakout FOLLOW-THROUGH, whose only reliable symptom is
+  the strategy's own P&L.
+- **What separates the eras: persistence of losing windows.** Rolling
+  126-session P&L was negative in **64%** of windows in 2015–18 vs **7%**
+  in 2019–26 (worst single window: −$593 dead era vs −$747 live era — depth
+  does NOT separate, persistence does).
+- **PRE-REGISTERED stand-down rule (protection, not tuning):** if the rolling
+  6-month champion P&L (live + sim combined) stays **negative for 3
+  consecutive month-ends → stop buying evals, go sim-only**; resume when the
+  rolling 6-month sim P&L turns positive. In-era calibration; forward data
+  validates it. Failure-mode cost if the regime dies ≈ a few months of eval
+  fees, not blown capital.
+- 2026 YTD (+$2,421, healthy) says the regime is ON as of June 2026. The
+  forward test now does double duty: execution check + live regime reading.
+- **Do NOT re-tune the champion on 2015–18 to "fix" it** — that would be
+  fitting the strategy to a market that no longer exists.
+
 ---
 
 ## 4. Gotchas & facts that MUST NOT be lost
@@ -230,7 +263,9 @@ Pre-forward-test audit of the engine, data, and overfitting evidence:
 
 1. Backtest PF 1.44 → **live will likely be lower** (slippage/fills erode it).
 2. **Copy-traded accounts are perfectly correlated** — the 9% blow rate is not diversified.
-3. The edge is **Nasdaq-trend-dependent**; 2023 chop nearly flattened it; an unseen regime could underperform.
+3. The edge is **era-dependent, not just trend-dependent** — §3g proved it did
+   NOT exist in 2015–2018 (PF 0.94). The plan is a bet that the post-2019
+   intraday regime persists; the stand-down rule (§3g) caps the cost if it dies.
 4. **Prop ROI is on the eval fee, not return-on-account** — don't frame it as an S&P-style % return (except when the user explicitly asks for the account-% figure, which is ~9%).
 
 ---

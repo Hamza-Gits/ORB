@@ -301,9 +301,16 @@ comes from forward-testing, not more tuning.
    10 accounts is NOT 10 independent 9%-blow bets — it's ONE bet replicated 10
    times. A bad 77-day window blows all of them **simultaneously**. The "9%
    blow" is correlated, not diversified.
-3. **The edge is Nasdaq-trend-dependent.** 2023 chop nearly flattened it. There
-   is no post-2026 data; an unseen chop/regime-change year could underperform
-   everything in the backtest.
+3. **The edge is era-dependent — proven, not hypothetical.** A frozen-parameter
+   test on NQ 2015–2018 (data the research never touched; see CONTEXT.md §3g)
+   shows **no edge before ~2019**: PF 0.94, −$737 over 4 years, 3 of 4 years
+   negative. The edge belongs to the post-2019 intraday regime (micros / 0DTE /
+   post-COVID dynamics) and no simple indicator detects the regime switching
+   off — only the strategy's own rolling P&L does. Mitigation: the
+   pre-registered stand-down rule (3 consecutive negative rolling-6-month
+   month-ends → sim-only). The dead era's failure mode was a slow bleed
+   (maxDD −$1,582 over 4 years), not a crater — on a prop account that means
+   wasted fees, not blown capital. 2023 chop remains the within-era weak spot.
 4. **Prop ROI is on the eval fee, not return-on-account.** The right mental
    frame is "~$98 risked per account to chase a $3,000 target + payouts," not a
    percentage return on 50K. Don't compare it to S&P annual %.

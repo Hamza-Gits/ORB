@@ -50,6 +50,17 @@ OR width ≤ 130 / ADX(14) ≥ 20 / target = entry ± 1.5 × prior-day ATR(14)` 
 | Max historical drawdown | −$1,769 (fits inside the 50K account's $2,000 limit) |
 | Positive years | every full calendar year on record, incl. the 2022 bear |
 | In-sample vs out-of-sample | PF 1.37 (2019–23) → **1.62** (2024–26) — the edge *strengthened* on unseen data |
+| Pre-2019 reality check | frozen params on NQ 2015–2018: **PF 0.94, no edge** — the edge is a post-2019 phenomenon (see below) |
+
+> **⚠️ The honest headline risk (found 2026-07-02):** a frozen-parameter test on
+> 2015–2018 NQ data — data the research never touched — shows the edge **did
+> not exist before ~2019**. The 2024–26 out-of-sample result proves the config
+> isn't curve-fit *within* the modern era; the 2015–18 result proves the modern
+> era itself is the bet. If that regime dies, the observed failure mode is a
+> slow bleed (−$737 over four years, max DD −$1,582 — capped losses hold), not
+> a blowup — on prop accounts that costs eval fees, not capital. Protection: a
+> pre-registered stand-down rule (rolling 6-month P&L negative 3 month-ends in
+> a row → sim-only). Details in `CONTEXT.md` §3g.
 
 ### Risk — what can actually go wrong
 

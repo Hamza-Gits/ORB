@@ -75,7 +75,8 @@ Both concluded: **no improvement exists.** See
 
 | File | Contents |
 |---|---|
-| `MNQ_full_1min.csv` | **master dataset** — continuous MNQ 1-min, 2019–2026 (~969k bars). 57 MB. |
+| `MNQ_full_1min.csv` | **master dataset** — continuous MNQ 1-min, 2019–2026 (~968k bars, weekend-junk cleaned 2026-07-02). 56 MB. |
+| `NQ_2015_2018_1min.csv` | pre-2019 NQ continuous 1-min (533k bars), stitched from NT per-contract exports. Basis of the era-dependence finding (RESULTS.md "Pre-2019 reality check"): frozen champion → PF 0.94, no edge before ~2019. |
 | `mnq7_all_fullgrid.csv` | all 4,860 combos, full-period results |
 | `mnq7_all_robust.csv` | 1,294 configs profitable in all 5 segments, ranked by worst segment |
 | `mnq7_final_*.csv`, `mnq_final_*.csv`, `mnq_robust*.csv` | earlier grid/robustness outputs (superseded by the `mnq7_all_*` pair but kept for the record) |
