@@ -58,7 +58,7 @@ free-feed contract.** Diagnostic scripts: `Python/_nt_deepdive_run3.py`,
 `_nt_orderlevels.py`, `_nt_compare_2026.py`; evidence in `Back Test Results/3/`.
 
 ### 3b. Forward-testing questions — ANSWERED
-- **Keeping it running unattended:** run FiveMinuteORB as a **live strategy on
+- **Keeping it running unattended:** run FifteenMinuteORB as a **live strategy on
   Sim101** (1-min front-month chart, Days-to-load ≥ 40, Calculate=On bar close,
   Enabled). It then trades every session automatically, flat overnight. NT must
   stay open+connected and the PC awake — or run NT on a **VPS** for true 24/7.
@@ -248,7 +248,7 @@ audit battery CLEAN). The **frozen champion** (zero re-tuning) on it:
    scaling is viable).
 2. **Finish the manual spot-check** (optional confidence): a few more days from
    the answer key vs the user's chart. If they keep matching, validation is done.
-3. **Real forward test** — either let FiveMinuteORB run live on **Sim101** from
+3. **Real forward test** — either let FifteenMinuteORB run live on **Sim101** from
    now, or keep manually stepping through history with the tester. This is the
    gate before any money (and before acting on any Section-3e upgrade).
 4. **Pass a 25K eval → execute the 50K compounding plan** — with the Section-3e
@@ -281,7 +281,7 @@ ORB/
 │  ├─ ORB_Manual_Tester.html  <- browser calculator (width-based, logs + stats)
 │  └─ orb_answer_key.csv      <- all 836 champion trades + running P&L
 ├─ Back Test Results/         <- raw NT exports (evidence); /3 = the Section-5b run
-├─ NinjaTrader/FiveMinuteORB.cs  <- NT8 strategy, defaults = champion, parity-verified
+├─ NinjaTrader/FifteenMinuteORB.cs  <- NT8 strategy, defaults = champion, parity-verified
 └─ Python/
    ├─ orb_strategy.py         <- core engine (single source of truth)
    ├─ _answer_key.py          <- regenerates orb_answer_key.csv

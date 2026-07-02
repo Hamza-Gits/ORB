@@ -15,7 +15,7 @@ prop-firm accounts** and compound the payouts.
 - ✅ Strategy researched, optimized (4,860 combos), and robustness-tested across
   5 market segments incl. the 2020 crash and 2022 bear.
 - ✅ Monte Carlo prop-survival simulated (50K @ 1 micro = **90% pass**).
-- ✅ Ported to NinjaTrader 8 (`NinjaTrader/FiveMinuteORB.cs`) and **parity-verified**.
+- ✅ Ported to NinjaTrader 8 (`NinjaTrader/FifteenMinuteORB.cs`) and **parity-verified**.
 - ✅ Two disciplined out-of-sample rounds confirm the config is **unimprovable**
   on this data (the edge even *strengthened* out-of-sample).
 - ✅ Full account-lifecycle simulated (eval → funded → payouts → blow → repeat)

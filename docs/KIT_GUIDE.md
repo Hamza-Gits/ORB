@@ -72,7 +72,7 @@ data is random — ignore the P&L.**
 
 ### 4.1 Add the strategy
 1. Control Center → *New → NinjaScript Editor*.
-2. Copy `NinjaTrader/FiveMinuteORB.cs` into
+2. Copy `NinjaTrader/FifteenMinuteORB.cs` into
    `Documents\NinjaTrader 8\bin\Custom\Strategies\`, then press **F5** to compile.
 3. A green "build successful" = done.
 
@@ -86,13 +86,13 @@ data is random — ignore the P&L.**
 ### 4.3 Backtest (Strategy Analyzer)
 1. Control Center → *New → Strategy Analyzer*.
 2. Pick **MNQ**, the date range, **1 Minute** bars.
-3. Strategy → **FiveMinuteORB** (defaults already = the champion config).
+3. Strategy → **FifteenMinuteORB** (defaults already = the champion config).
 4. Realism settings: **Order Fill Resolution = High (1-tick)**, **Commission**
    ~$1.24 round-turn, **Slippage** 1 tick.
 5. **Run**, review Summary / Trades / Chart.
 
 ### 4.4 Forward test on the simulator
-- Drag **FiveMinuteORB** onto a live 1-min MNQ chart, enable on **Sim101**, and
+- Drag **FifteenMinuteORB** onto a live 1-min MNQ chart, enable on **Sim101**, and
   let it run live sessions for several weeks. **This is the real test before any
   money** (see PROJECT_STATE.md §8).
 

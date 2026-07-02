@@ -55,7 +55,7 @@ Everything not listed is the engine default (stop = opposite OR extreme,
 
 ---
 
-## NinjaScript parameters (`NinjaTrader/FiveMinuteORB.cs`)
+## NinjaScript parameters (`NinjaTrader/FifteenMinuteORB.cs`)
 
 The strategy's **defaults already equal the champion** — drop it on a chart and
 it trades this config. The mapping:

@@ -11,7 +11,7 @@ config these tools converged on.
 
 | Script | What it does |
 |---|---|
-| **`orb_strategy.py`** | **The engine — single source of truth for the trading logic.** Defines `Params` (every knob), `load_csv()`, `prepare_days()` (one-time per-day prep for fast grid search), `run_prepared()` (fast backtest on prepped days), `run_backtest()` (convenience: load→prep→run), and the metrics. Mirrors `FiveMinuteORB.cs`. No lookahead; same-bar stop+target resolved pessimistically (assume stop first). Contains the documented audit fixes (LA1/LA2/EX1/DST/etc.). |
+| **`orb_strategy.py`** | **The engine — single source of truth for the trading logic.** Defines `Params` (every knob), `load_csv()`, `prepare_days()` (one-time per-day prep for fast grid search), `run_prepared()` (fast backtest on prepped days), `run_backtest()` (convenience: load→prep→run), and the metrics. Mirrors `FifteenMinuteORB.cs`. No lookahead; same-bar stop+target resolved pessimistically (assume stop first). Contains the documented audit fixes (LA1/LA2/EX1/DST/etc.). |
 | `orb_backtest.py` | CLI: run ONE backtest, print the stats table, save a trades CSV + equity-curve PNG. |
 | `orb_optimize.py` | CLI: grid search + heatmap + walk-forward (`--split DATE`). The original optimizer. |
 | `make_sample_data.py` | Generate synthetic but valid 1-min data to smoke-test the pipeline (P&L is meaningless). |

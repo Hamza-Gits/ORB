@@ -24,7 +24,7 @@ a **FLEX EVAL prop account**.
   The champion config is confirmed at its ceiling for this data — further tuning
   is overfitting, not improvement.
 - **The strategy is ported and parity-verified** in NinjaTrader 8
-  (`NinjaTrader/FiveMinuteORB.cs`). It reproduces the Python engine.
+  (`NinjaTrader/FifteenMinuteORB.cs`). It reproduces the Python engine.
 - **The ONE thing left before risking money: forward-test** on NinjaTrader
   sim / Market Replay on going-forward data. Everything above is backtest.
 
@@ -177,7 +177,7 @@ full year including the 2022 bear. Full breakdown in [`RESULTS.md`](RESULTS.md).
 
 ## 5. NinjaScript port — DONE and parity-verified
 
-`NinjaTrader/FiveMinuteORB.cs` was rewritten to reproduce the champion exactly:
+`NinjaTrader/FifteenMinuteORB.cs` was rewritten to reproduce the champion exactly:
 self-built daily bars + Wilder ATR/ADX (per ET date, prior-day = no lookahead,
 matching the Python `_atr`/`_adx`), self-accumulated session VWAP, OR-width
 filter, `vwap_slope` bias, ADX regime, and ATR target. Defaults = the champion.
@@ -327,7 +327,7 @@ In priority order:
      DST-aware named zone, not a fixed offset — see Section 5b).
    - Open a **1-min chart of the front month** (MNQ SEP26 as of now), **Days to
      load ≈ 40+** so the ATR/ADX warmup (~29 daily bars) is satisfied on startup.
-   - Apply **FiveMinuteORB** (or add via Control Center → Strategies tab),
+   - Apply **FifteenMinuteORB** (or add via Control Center → Strategies tab),
      **Account = Sim101**, **Calculate = On bar close**, **Enabled = true**. It
      then trades every session automatically — measures the OR, places orders,
      flattens 15:55 — no manual clicks. Flat overnight, so nothing to babysit.
@@ -368,7 +368,7 @@ If you're a new chat picking this up:
      --max-or-points 130 --regime adx --target atr1.5 --paths 10000
    ```
    (or use the small helper scripts `_fullstats.py`, `_monthly.py`, `_yearly.py`).
-4. The NinjaScript is `NinjaTrader/FiveMinuteORB.cs`, defaults = champion.
+4. The NinjaScript is `NinjaTrader/FifteenMinuteORB.cs`, defaults = champion.
    Remember the **timezone fix** (Section 5) before backtesting/forward-testing.
 5. [`SCRIPTS.md`](SCRIPTS.md) explains every tool in `Python/`.
 
@@ -396,7 +396,7 @@ ORB/
 ├─ Back Test Results/        <- raw NinjaTrader Strategy Analyzer exports (evidence)
 │  └─ 3/                      <- the Jan–Jun 2026 SEP26 run analyzed in Section 5b
 ├─ NinjaTrader/
-│  └─ FiveMinuteORB.cs        <- NT8 strategy, defaults = champion, parity-verified
+│  └─ FifteenMinuteORB.cs        <- NT8 strategy, defaults = champion, parity-verified
 └─ Python/
    ├─ orb_strategy.py         <- core engine (single source of truth)
    ├─ orb_final.py            <- the 4,860-combo grid optimizer (Pass 1 + Pass 2)

@@ -13,14 +13,22 @@ using NinjaTrader.Core.FloatingPoint;
 #endregion
 
 // ============================================================================
-//  FiveMinuteORB  -  Opening Range Breakout for index futures (MNQ / MES / NQ / ES)
+//  FifteenMinuteORB  -  Opening Range Breakout for index futures (MNQ / MES / NQ / ES)
 //
-//  This version is the PORT of the optimized Python engine. It reproduces the
-//  winning config from the 7-year MNQ optimization + Monte Carlo study:
+//  NAME NOTE: this was formerly "FiveMinuteORB" -- a leftover from when the
+//  project started as a 5-minute range. The champion is a 15-MINUTE ORB, so the
+//  class is renamed to match. (C# won't allow "15 Min ORB" as a class name --
+//  identifiers can't start with a digit or contain spaces -- so FifteenMinuteORB
+//  is the valid equivalent. Trading logic is byte-for-byte identical to the old
+//  file; only the name and the header numbers below changed.)
+//
+//  This is the PORT of the optimized Python engine. It reproduces the winning
+//  config from the 7-year MNQ study, on POST-AUDIT clean data (2026-07-02):
 //
 //      OR 15 min | offset 2 ticks | both directions | vwap_slope bias
 //      width <= 130 pts | ADX regime (>=20) | ATR 1.5x target
-//      -> net ~$27.6k/7yr/micro, PF 1.45, maxDD -$1,607 (fits the 50K limit)
+//      -> 836 trades, net ~$27,025/7yr/micro, PF 1.44, win 44.1%,
+//         maxDD -$1,769 (fits the 50K account's $2,000 limit)
 //
 //  RULES
 //    1. Mark the High/Low of the first OrMinutes after the cash open = the OR.
@@ -53,7 +61,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 	public enum OrbBiasMode { None, VwapSlope }
 	public enum OrbTargetMode { RewardRisk, Atr }
 
-	public class FiveMinuteORB : Strategy
+	public class FifteenMinuteORB : Strategy
 	{
 		// --- per-day OR state ------------------------------------------------
 		private double		orHigh;
@@ -90,8 +98,8 @@ namespace NinjaTrader.NinjaScript.Strategies
 		{
 			if (State == State.SetDefaults)
 			{
-				Description					= "Optimized Opening Range Breakout (vwap_slope bias + ADX regime + width filter + ATR target). Port of the 7-year MNQ winning config.";
-				Name						= "FiveMinuteORB";
+				Description					= "Optimized 15-minute Opening Range Breakout (vwap_slope bias + ADX regime + width filter + ATR target). Port of the 7-year MNQ winning config.";
+				Name						= "FifteenMinuteORB";
 
 				Calculate					= Calculate.OnBarClose;
 				EntriesPerDirection			= 1;
