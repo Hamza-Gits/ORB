@@ -13,14 +13,22 @@ using NinjaTrader.Core.FloatingPoint;
 #endregion
 
 // ============================================================================
-//  FifteenMinuteORB  -  Opening Range Breakout for index futures (MNQ / MES / NQ / ES)
+//  FifteenMinuteORB  (v1.1)  -  Opening Range Breakout for index futures
+//                               (MNQ / MES / NQ / ES)
+//
+//  v1.1 (2026-07-03): added daily DECISION LOGGING to the NinjaScript Output
+//    window. Every session prints one line -- either why it stood down
+//    (width / ADX / ATR-warmup / VWAP-slope bias) or that it armed, with the
+//    entry / stop / target levels. NO change to trading logic or numbers; the
+//    only code added is Print() calls + two "printed once" guard flags.
 //
 //  NAME NOTE: this was formerly "FiveMinuteORB" -- a leftover from when the
 //  project started as a 5-minute range. The champion is a 15-MINUTE ORB, so the
 //  class is renamed to match. (C# won't allow "15 Min ORB" as a class name --
 //  identifiers can't start with a digit or contain spaces -- so FifteenMinuteORB
-//  is the valid equivalent. Trading logic is byte-for-byte identical to the old
-//  file; only the name and the header numbers below changed.)
+//  is the valid equivalent. The version shows as "FifteenMinuteORB v1.1" in the
+//  strategy list; the class name is kept stable so a chart's attached strategy
+//  survives recompiles.)
 //
 //  This is the PORT of the optimized Python engine. It reproduces the winning
 //  config from the 7-year MNQ study, on POST-AUDIT clean data (2026-07-02):
@@ -78,6 +86,8 @@ namespace NinjaTrader.NinjaScript.Strategies
 		private bool		dayAllowLong;
 		private bool		dayAllowShort;
 		private bool		dayTradeable;
+		private bool		ordersLoggedToday;   // v1.1: arm-levels line printed once/day
+		private bool		startupLogged;       // v1.1: startup banner printed once
 
 		// --- internal daily-bar accumulation (for ATR / ADX) -----------------
 		private readonly List<double> dH = new List<double>();
@@ -98,8 +108,8 @@ namespace NinjaTrader.NinjaScript.Strategies
 		{
 			if (State == State.SetDefaults)
 			{
-				Description					= "Optimized 15-minute Opening Range Breakout (vwap_slope bias + ADX regime + width filter + ATR target). Port of the 7-year MNQ winning config.";
-				Name						= "FifteenMinuteORB";
+				Description					= "Optimized 15-minute Opening Range Breakout (vwap_slope bias + ADX regime + width filter + ATR target). Port of the 7-year MNQ winning config. v1.1: daily decision logging to the Output window.";
+				Name						= "FifteenMinuteORB v1.1";
 
 				Calculate					= Calculate.OnBarClose;
 				EntriesPerDirection			= 1;
@@ -148,6 +158,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 
 			int now = ToTime(Time[0]);				// HHmmss
 
+			// v1.1: one-time banner so you can see the strategy is live in the Output window
+			if (!startupLogged)
+			{
+				Print("FifteenMinuteORB v1.1 active on " + Instrument.FullName
+					+ " -- one line prints per session (trade or skip reason).");
+				startupLogged = true;
+			}
+
 			// ---- 1) New trading day --------------------------------------------
 			if (Time[0].Date != currentDay)
 			{
@@ -165,6 +183,7 @@ namespace NinjaTrader.NinjaScript.Strategies
 				orComplete	= false;
 				tradesToday	= 0;
 				dayAllowLong = dayAllowShort = dayTradeable = false;
+				ordersLoggedToday = false;
 
 				CancelIfWorking(longEntry);
 				CancelIfWorking(shortEntry);
@@ -280,6 +299,9 @@ namespace NinjaTrader.NinjaScript.Strategies
 						SetStopLoss("ORlong",     CalculationMode.Price, stopL,   false);
 						SetProfitTarget("ORlong", CalculationMode.Price, targetL);
 						longEntry = EnterLongStopMarket(0, true, Quantity, entryL, "ORlong");
+						if (!ordersLoggedToday)
+							Print(currentDay.ToString("yyyy-MM-dd") + "  ARM LONG   buy-stop " + entryL
+								+ "  stop " + stopL + "  target " + targetL.ToString("F2"));
 					}
 				}
 
@@ -293,8 +315,13 @@ namespace NinjaTrader.NinjaScript.Strategies
 						SetStopLoss("ORshort",     CalculationMode.Price, stopS,   false);
 						SetProfitTarget("ORshort", CalculationMode.Price, targetS);
 						shortEntry = EnterShortStopMarket(0, true, Quantity, entryS, "ORshort");
+						if (!ordersLoggedToday)
+							Print(currentDay.ToString("yyyy-MM-dd") + "  ARM SHORT  sell-stop " + entryS
+								+ "  stop " + stopS + "  target " + targetS.ToString("F2"));
 					}
 				}
+
+				ordersLoggedToday = true;
 			}
 			else
 			{
@@ -305,43 +332,71 @@ namespace NinjaTrader.NinjaScript.Strategies
 
 		// Decide whether today is tradeable and which side(s) the bias allows.
 		// Mirrors the Python run_prepared gate order: width -> regime -> bias.
+		// v1.1: every branch prints its decision to the Output window.
 		private void EvaluateDayFilters()
 		{
 			dayTradeable = false;
 			dayAllowLong = EnableLong;
 			dayAllowShort = EnableShort;
 
-			// width filter
+			string tag = currentDay.ToString("yyyy-MM-dd") + "  ";
 			double widthPts = orHigh - orLow;
+
+			// width filter
 			if (MaxOrPoints > 0 && widthPts > MaxOrPoints)
+			{
+				Print(tag + "SKIP   OR width " + widthPts.ToString("F1") + " pts > " + MaxOrPoints.ToString("F0") + " limit");
 				return;
+			}
 
 			// ADX regime (prior completed day)
 			if (UseAdxRegime)
 			{
-				if (double.IsNaN(adxPrev) || adxPrev < AdxMin)
+				if (double.IsNaN(adxPrev))
+				{
+					Print(tag + "SKIP   ADX still warming up (needs ~29 prior days)");
 					return;
+				}
+				if (adxPrev < AdxMin)
+				{
+					Print(tag + "SKIP   ADX " + adxPrev.ToString("F1") + " < " + AdxMin.ToString("F0") + " (not trending)");
+					return;
+				}
 			}
 
 			// ATR-target days need a valid prior-day ATR, else stand aside (matches Python)
 			if (TargetMode == OrbTargetMode.Atr && (double.IsNaN(atrPrev) || atrPrev <= 0))
+			{
+				Print(tag + "SKIP   ATR still warming up (needs ~15 prior days)");
 				return;
+			}
 
 			// vwap_slope bias
+			bool up = true;
 			if (Bias == OrbBiasMode.VwapSlope)
 			{
 				if (cumV <= 0 || !vwapStartCaptured || double.IsNaN(vwapStart))
+				{
+					Print(tag + "SKIP   VWAP-slope undetermined (no OR volume)");
 					return;								// can't determine bias -> skip day
+				}
 				double vwapEnd = cumVP / cumV;			// running VWAP at OR close (= Python vws[-1])
-				bool up = vwapEnd > vwapStart;
+				up = vwapEnd > vwapStart;
 				dayAllowLong  = dayAllowLong  && up;
 				dayAllowShort = dayAllowShort && !up;
 			}
 
 			if (!(dayAllowLong || dayAllowShort))
+			{
+				Print(tag + "SKIP   VWAP sloping " + (up ? "UP but shorts-only config" : "DOWN but longs-only config"));
 				return;
+			}
 
 			dayTradeable = true;
+			Print(tag + "TRADEABLE  " + (dayAllowLong ? "LONG " : "SHORT")
+				+ "   ORwidth=" + widthPts.ToString("F1")
+				+ "  ADXprev=" + adxPrev.ToString("F1")
+				+ "  ATRprev=" + atrPrev.ToString("F1"));
 		}
 
 		// Target price for a side. RewardRisk = multiple of risk; Atr = k * prior-day ATR.
@@ -431,12 +486,12 @@ namespace NinjaTrader.NinjaScript.Strategies
 			if (execution.Order.Name == "ORlong" && execution.Order.OrderAction == OrderAction.Buy)
 			{
 				CancelIfWorking(shortEntry);
-				if (fullFill) tradesToday++;
+				if (fullFill) { tradesToday++; Print(currentDay.ToString("yyyy-MM-dd") + "  FILLED LONG  @ " + price); }
 			}
 			else if (execution.Order.Name == "ORshort" && execution.Order.OrderAction == OrderAction.SellShort)
 			{
 				CancelIfWorking(longEntry);
-				if (fullFill) tradesToday++;
+				if (fullFill) { tradesToday++; Print(currentDay.ToString("yyyy-MM-dd") + "  FILLED SHORT @ " + price); }
 			}
 		}
 
