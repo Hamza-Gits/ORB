@@ -59,9 +59,10 @@ free-feed contract.** Diagnostic scripts: `Python/_nt_deepdive_run3.py`,
 
 ### 3b. Forward-testing questions — ANSWERED
 - **Keeping it running unattended:** run FifteenMinuteORB as a **live strategy on
-  Sim101** (1-min front-month chart, Days-to-load ≥ 40, Calculate=On bar close,
-  Enabled). It then trades every session automatically, flat overnight. NT must
-  stay open+connected and the PC awake — or run NT on a **VPS** for true 24/7.
+  Sim101** (1-min front-month chart, **Days-to-load = 120** (calendar days — see
+  §3h; 40 is too few), Calculate=On bar close, Enabled). It then trades every
+  session automatically, flat overnight. NT must stay open+connected and the PC
+  awake — or run NT on a **VPS** for true 24/7.
 - **10-min delayed free feed — VERDICT:** **FINE for sim forward-testing.** The
   delay is a uniform clock-shift; bars carry real timestamps/prices and Sim101
   fills against the same delayed stream, so sim P&L faithfully measures the edge.
@@ -200,6 +201,35 @@ audit battery CLEAN). The **frozen champion** (zero re-tuning) on it:
   forward test now does double duty: execution check + live regime reading.
 - **Do NOT re-tune the champion on 2015–18 to "fix" it** — that would be
   fitting the strategy to a market that no longer exists.
+
+### 3h. Forward test LIVE on Sim101 (2026-07-03) — running + OR-parity confirmed
+The user got `FifteenMinuteORB` (renamed from FiveMinuteORB; class name kept
+stable) running live on **Sim101**, 1-min **MNQ SEP26** chart. Added **v1.1**:
+per-session decision logging to the NinjaScript Output window (SKIP + reason /
+TRADEABLE + levels / FILLED). Both the repo copy and the user's install copy
+(`Documents/NinjaTrader 8/bin/Custom/Strategies/`) are updated; the old
+`FiveMinuteORB.cs` there was renamed to `.bak`.
+
+- **OR-width parity CONFIRMED live.** NT's logged SEP26 opening-range widths
+  match the Python engine's continuous front-month widths **to the decimal**
+  (06-12 237.8=237.8, 06-15 133.8=133.8, 06-17 130.3≈130.2, 06-18 223.0=223.0,
+  06-22 169.8=169.8; 06-16 & 06-19 both ≤130 in both). → timezone is correct,
+  SEP26 data is clean (no §5b compression), NT reproduces the engine. This is
+  the core forward-test check and it PASSED on OR measurement.
+- **Heavy filtering is correct, not a bug.** June 2026 was a genuinely wide-range
+  month — our own data shows **88% of June days had OR width >130** (median 156).
+  So the strategy standing down almost every June day is the width filter working
+  as designed. Other 2026 months skip 24–62%. Expect the **first live trade to be
+  a week or two out** while volatility is elevated; the log proves it's evaluating
+  correctly meanwhile.
+- **⚠️ Days-to-load fix.** NT "Days to load" is CALENDAR days. ADX needs ~29
+  TRADING days (~41 calendar) just to warm up, so the earlier "≥40" guidance was
+  too low — 50 nearly all went to warmup (~20 "ADX warming up" lines). **Use
+  Days-to-load = 120** so ADX is robustly warm + a month of margin at every
+  restart. (Strategy is warm now at ~35 days, but a restart on 50 could relapse.)
+- Runbook essentials that held up: timezone = Eastern (implied correct by the
+  parity match), Calculate=On bar close, Account=Sim101, Enabled ✓, front month
+  = SEP26 (roll to DEC26 ~2026-09-10).
 
 ---
 

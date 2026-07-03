@@ -326,7 +326,8 @@ In priority order:
    - NinjaTrader timezone = **"(UTC-05:00) Eastern Time (US & Canada)"** (the
      DST-aware named zone, not a fixed offset — see Section 5b).
    - Open a **1-min chart of the front month** (MNQ SEP26 as of now), **Days to
-     load ≈ 40+** so the ATR/ADX warmup (~29 daily bars) is satisfied on startup.
+     load = 120** (CALENDAR days — ADX needs ~29 TRADING ≈ 41 calendar days just
+     to warm up; the old "40+" was too low, see CONTEXT.md §3h).
    - Apply **FifteenMinuteORB** (or add via Control Center → Strategies tab),
      **Account = Sim101**, **Calculate = On bar close**, **Enabled = true**. It
      then trades every session automatically — measures the OR, places orders,
